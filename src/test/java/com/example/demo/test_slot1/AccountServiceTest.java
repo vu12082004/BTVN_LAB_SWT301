@@ -1,5 +1,6 @@
-package com.example.demo;
+package com.example.demo.test_slot1;
 
+import com.example.demo.slot1.AccountService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

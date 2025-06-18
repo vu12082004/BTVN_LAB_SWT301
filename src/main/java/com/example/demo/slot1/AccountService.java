@@ -1,4 +1,4 @@
-package com.example.demo;
+package com.example.demo.slot1;
 
 import java.util.HashSet;
 import java.util.Set;
