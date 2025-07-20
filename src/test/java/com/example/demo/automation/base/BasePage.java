@@ -67,4 +67,22 @@ public class BasePage {
         Select select = new Select(dropdown);
         select.selectByVisibleText(visibleText);
     }
+
+    /** Select an option by its visible text, instead of value. */
+    protected void selectByVisibleText(By locator, String visibleText) {
+        WebElement el = waitForVisibility(locator,5);
+        new Select(el).selectByVisibleText(visibleText);
+    }
+
+    /** A safe "select by value" that falls back to visible‐text when the given value isn’t found. */
+    protected void selectByValue(By locator, String value) {
+        WebElement el = waitForVisibility(locator, 5);
+        Select sel = new Select(el);
+        try {
+            sel.selectByValue(value);
+        } catch (NoSuchElementException e) {
+            // fallback: maybe the option’s actual HTML value is different; try matching on visible text
+            sel.selectByVisibleText(value);
+        }
+    }
 }
