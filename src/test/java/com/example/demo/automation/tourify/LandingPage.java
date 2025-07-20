@@ -16,8 +16,4 @@ public class LandingPage extends BasePage {
         waitForVisibility(logoutButton, 5);
         click(logoutButton);
     }
-
-    public boolean isAtLoginPage() {
-        return driver.getCurrentUrl().contains("/login");
-    }
 }

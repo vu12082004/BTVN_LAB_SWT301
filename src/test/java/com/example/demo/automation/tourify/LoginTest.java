@@ -15,78 +15,89 @@ public class LoginTest extends BaseTest {
     private LoginPage loginPage;
 
     @BeforeEach
-    public void setup() {
+    void beforeEach() {
+        // 1) Xóa cookies để chắc chắn đang ở state "chưa login"
+        driver.manage().deleteAllCookies();
+
+        // 2) Mở thẳng trang login
+        driver.get("http://localhost:8080/tourify/login");
         loginPage = new LoginPage(driver);
+
+        // 3) Đợi input username visible
+        new WebDriverWait(driver, Duration.ofSeconds(5))
+                .until(ExpectedConditions.visibilityOfElementLocated(loginPage.getUsernameField()));
+    }
+
+    @AfterEach
+    void afterEach() {
+        // Nếu sau khi test xong mà đã login thành công
+        if (loginPage.isSuccess()) {
+            // Logout tự động
+            new LandingPage(driver).logout();
+            // Đợi quay về login page
+            new WebDriverWait(driver, Duration.ofSeconds(5))
+                    .until(ExpectedConditions.visibilityOfElementLocated(loginPage.getUsernameField()));
+        }
     }
 
     @Test
     @Order(1)
-    public void testLoginSuccess() {
-        loginPage.navigate();
+    void testLoginSuccess() {
+        // Act
         loginPage.login("khoanguyen2", "123456");
 
-        Assertions.assertTrue(loginPage.isSuccess(), "Phải báo đăng nhập thành công");
-
-        // Logout sau khi đăng nhập thành công
-        LandingPage landingPage = new LandingPage(driver);
-        landingPage.logout();
-
-        // Chờ redirect về trang login với input username hiển thị
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-        wait.until(ExpectedConditions.visibilityOfElementLocated(loginPage.getUsernameField()));
-
-        Assertions.assertTrue(driver.getCurrentUrl().contains("/login"), "Phải trở về trang login sau logout");
+        // Assert
+        Assertions.assertTrue(
+                loginPage.isSuccess(),
+                "Phải báo đăng nhập thành công với tài khoản hợp lệ"
+        );
+        // Logout sẽ được xử lý trong @AfterEach
     }
 
     @Test
     @Order(2)
-    public void testLoginWrongPassword() {
-        loginPage.navigate();
-        loginPage.login("khoanguyen", "wrongpassword");
+    void testLoginWrongPassword() {
+        loginPage.login("khoanguyen2", "wrongpassword");
 
-        Assertions.assertTrue(loginPage.isError(), "Phải báo lỗi đăng nhập khi sai mật khẩu");
+        Assertions.assertTrue(
+                loginPage.isError(),
+                "Phải báo lỗi khi mật khẩu không đúng"
+        );
     }
 
     @Test
     @Order(3)
-    public void testLoginEmpty() {
-        loginPage.navigate();
-
-        // Không nhập gì, chỉ click Login
+    void testLoginEmpty() {
+        // Chỉ click login mà không nhập gì
         loginPage.clickLogin();
 
-        // Kiểm tra trình duyệt có validation message (báo lỗi trường trống)
-        String usernameValidationMsg = loginPage.getUsernameValidationMessage();
-        String passwordValidationMsg = loginPage.getPasswordValidationMessage();
+        String userMsg = loginPage.getUsernameValidationMessage();
+        String passMsg = loginPage.getPasswordValidationMessage();
 
         Assertions.assertTrue(
-                (usernameValidationMsg != null && !usernameValidationMsg.isEmpty()) ||
-                        (passwordValidationMsg != null && !passwordValidationMsg.isEmpty()),
-                "Phải báo lỗi username hoặc password không được để trống"
+                (userMsg != null && !userMsg.isEmpty()) ||
+                        (passMsg != null && !passMsg.isEmpty()),
+                "Phải hiển thị validation message khi để trống username hoặc password"
         );
     }
 
-
-    // Test đăng nhập với dữ liệu trong file CSV
-    @ParameterizedTest
+    @ParameterizedTest(name = "[{index}] user={0}, expect={2}")
     @CsvFileSource(resources = "/login-tourify-data.csv", numLinesToSkip = 1)
-    public void testLoginCsv(String username, String password, String expectedResult) {
-        loginPage.navigate();
+    @Order(4)
+    void testLoginCsv(String username, String password, String expectedResult) {
         loginPage.login(username, password);
 
         if ("success".equalsIgnoreCase(expectedResult)) {
-            Assertions.assertTrue(loginPage.isSuccess(), "Phải đăng nhập thành công với user: " + username);
-
-            // Logout sau khi đăng nhập thành công
-            LandingPage landingPage = new LandingPage(driver);
-            landingPage.logout();
-
-            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-            wait.until(ExpectedConditions.visibilityOfElementLocated(loginPage.getUsernameField()));
-
-            Assertions.assertTrue(driver.getCurrentUrl().contains("/login"), "Phải trở về trang login sau logout");
+            Assertions.assertTrue(
+                    loginPage.isSuccess(),
+                    "Phải login thành công với user=" + username
+            );
         } else {
-            Assertions.assertTrue(loginPage.isError(), "Phải báo lỗi đăng nhập với user: " + username);
+            Assertions.assertTrue(
+                    loginPage.isError(),
+                    "Phải báo lỗi khi login fail với user=" + username
+            );
         }
+        // logout (nếu success) sẽ tự động trong @AfterEach
     }
 }

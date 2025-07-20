@@ -16,11 +16,6 @@ public class LoginPage extends BasePage {
         super(driver);
     }
 
-    public void navigate() {
-        driver.get("http://localhost:8080/tourify/login");
-        waitForVisibility(usernameField, 10); // đợi input username hiện, timeout 10s
-    }
-
     public void enterUsername(String username) {
         waitForVisibility(usernameField, 10);
         type(usernameField, username);
@@ -40,14 +35,6 @@ public class LoginPage extends BasePage {
         enterUsername(username);
         enterPassword(password);
         clickLogin();
-    }
-
-    // Lấy text message hiện tại (nếu có)
-    public String getMessage() {
-        if (isElementVisible(messageContainer, 5)) {
-            return getText(messageContainer).trim();
-        }
-        return "";
     }
 
     // Kiểm tra có thông báo lỗi/thành công hiển thị hay không
