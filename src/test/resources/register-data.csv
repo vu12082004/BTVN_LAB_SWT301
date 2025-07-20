@@ -1,0 +1,5 @@
+firstName,lastName,email,mobile,expected
+Tom,Nguyen,tom{ts}@mail.com,0123456789,success
+Ann,Lee,annlee{ts}@mail.com,0999999999,success
+,,invalidemail,1234567890,error
+John,Test,johntest{ts}@mail.com,,error
