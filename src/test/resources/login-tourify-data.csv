@@ -1,0 +1,6 @@
+username,password,expected
+khoanguyen,123456,success
+wronguser,SecretPwd,error
+danghuy,admin123456,success
+admin123,WrongPwd,error
+khoanguyen1,123456,success

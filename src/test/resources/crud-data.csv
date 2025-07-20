@@ -1,0 +1,5 @@
+action,name,email,expectedResult
+create,Nguyen Van C,c@example.com,success
+create,,a@example.com,error
+update,Nguyen Van Updated,updated@example.com,success
+delete,,,

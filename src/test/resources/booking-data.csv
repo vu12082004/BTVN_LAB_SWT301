@@ -1,0 +1,6 @@
+from,to,expected
+Boston,London,success
+Paris,Berlin,success
+,,fail
+Boston,,fail
+,Berlin,fail
